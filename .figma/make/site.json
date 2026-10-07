@@ -1,0 +1,10 @@
+{
+  "description": "Seamlessly integrate your Figma designs into your portfolio website by converting them into clean, functional code, enhancing your online presence.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
