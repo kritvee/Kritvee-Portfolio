@@ -6,8 +6,9 @@ import {
   useScroll,
   useSpring,
   useTransform,
+  type MotionValue,
 } from "motion/react"
-import type { PointerEvent } from "react"
+import type { PointerEvent as ReactPointerEvent } from "react"
 import { useEffect, useRef, useState } from "react"
 import Navigation from "../components/Navigation"
 import { projects, secondaryWork } from "../data/portfolio"
@@ -15,14 +16,41 @@ import { projects, secondaryWork } from "../data/portfolio"
 const asset = (name: string) => `/assets/${name}`
 type Project = typeof projects[number]
 
+const easeOut = [0.22, 1, 0.36, 1] as const
+
 const reveal = {
   initial: { opacity: 0, y: 28 },
   whileInView: { opacity: 1, y: 0 },
   viewport: { once: true, amount: 0.18 },
-  transition: { duration: 0.68, ease: [0.22, 1, 0.36, 1] as const },
+  transition: { duration: 0.68, ease: easeOut },
 }
 
-function ArtworkLayer({ className, name }: { className: string name: string }) {
+const titleLines = [
+  {
+    key: "line-1",
+    content: (
+      <>
+        I notice <em>little things.</em>
+      </>
+    ),
+  },
+  {
+    key: "line-2",
+    content: (
+      <>
+        Then I <em>design around them.</em>
+      </>
+    ),
+  },
+]
+
+function ArtworkLayer({
+  className,
+  name,
+}: {
+  className: string
+  name: string
+}) {
   return (
     <img
       className={className}
@@ -154,42 +182,131 @@ function WorkspaceCursor() {
   )
 }
 
+function HeroInspectOverlay({
+  x,
+  y,
+  label,
+  visible,
+}: {
+  x: MotionValue<number>
+  y: MotionValue<number>
+  label: string
+  visible: boolean
+}) {
+  return (
+    <motion.div
+      className="workspace-hero-inspect"
+      aria-hidden="true"
+      animate={{ opacity: visible ? 1 : 0 }}
+      transition={{ duration: 0.18 }}
+    >
+      <motion.span className="workspace-hero-inspect-x" style={{ left: x }} />
+      <motion.span className="workspace-hero-inspect-y" style={{ top: y }} />
+      <motion.div
+        className="workspace-hero-inspect-readout"
+        style={{ x, y }}
+      >
+        <i />
+        <em>{label}</em>
+      </motion.div>
+    </motion.div>
+  )
+}
+
 function Hero() {
+  const prefersReducedMotion = useReducedMotion()
+  const heroRef = useRef<HTMLElement>(null)
   const rawX = useMotionValue(0)
   const rawY = useMotionValue(0)
-  const fishX = useSpring(rawX, { stiffness: 65, damping: 24 })
-  const fishY = useSpring(rawY, { stiffness: 65, damping: 24 })
-  const rotate = useTransform(fishX, [-20, 20], [-1.2, 1.2])
+  const x = useSpring(rawX, { stiffness: 420, damping: 38, mass: 0.28 })
+  const y = useSpring(rawY, { stiffness: 420, damping: 38, mass: 0.28 })
+  const [inspectVisible, setInspectVisible] = useState(false)
+  const [inspectLabel, setInspectLabel] = useState("INSPECT / 000 · 000")
+  const [finePointer, setFinePointer] = useState(false)
 
-  const moveReference = (event: PointerEvent<HTMLDivElement>) => {
-    const rect = event.currentTarget.getBoundingClientRect()
-    rawX.set(((event.clientX - rect.left) / rect.width - 0.5) * 38)
-    rawY.set(((event.clientY - rect.top) / rect.height - 0.5) * 28)
+  useEffect(() => {
+    const media = window.matchMedia("(pointer: fine) and (hover: hover)")
+    const sync = () => setFinePointer(media.matches)
+    sync()
+    media.addEventListener("change", sync)
+    return () => media.removeEventListener("change", sync)
+  }, [])
+
+  const handlePointerMove = (event: ReactPointerEvent<HTMLElement>) => {
+    if (!finePointer || !heroRef.current) return
+    const rect = heroRef.current.getBoundingClientRect()
+    const localX = event.clientX - rect.left
+    const localY = event.clientY - rect.top
+    rawX.set(localX)
+    rawY.set(localY)
+    setInspectVisible(true)
+
+    const target = (event.target as HTMLElement).closest<HTMLElement>(
+      "[data-cursor]",
+    )
+    const mode = target?.dataset.cursor
+    const coords = `${String(Math.round(localX)).padStart(3, "0")} · ${String(Math.round(localY)).padStart(3, "0")}`
+    if (mode === "open") setInspectLabel(`TARGET / ${coords}`)
+    else if (mode === "inspect") setInspectLabel(`FRAME / ${coords}`)
+    else setInspectLabel(`INSPECT / ${coords}`)
   }
 
+  const handlePointerLeave = () => setInspectVisible(false)
+
   return (
-    <section className="workspace-hero" id="top">
+    <section
+      ref={heroRef}
+      className="workspace-hero"
+      id="top"
+      onPointerMove={handlePointerMove}
+      onPointerLeave={handlePointerLeave}
+    >
+      {finePointer && (
+        <HeroInspectOverlay
+          x={x}
+          y={y}
+          label={inspectLabel}
+          visible={inspectVisible}
+        />
+      )}
       <div className="workspace-hero-grid">
-        <motion.p className="workspace-eyebrow" {...reveal}>
+        <motion.p
+          className="workspace-eyebrow"
+          initial={prefersReducedMotion ? false : { opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45, ease: easeOut }}
+        >
           UI/UX + PRODUCT DESIGNER
         </motion.p>
         <motion.div
           className="workspace-headline-frame"
-          initial={{ opacity: 0, y: 38 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
           data-cursor="inspect"
+          initial={prefersReducedMotion ? false : { opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3, delay: prefersReducedMotion ? 0 : 0.08 }}
         >
           <p className="workspace-annotation workspace-headline-note">
             01 / OBSERVATION
           </p>
           <h1>
-            <span>
-              I notice <em>little things.</em>
-            </span>
-            <span>
-              Then I <em>design around them.</em>
-            </span>
+            {titleLines.map((line, index) => (
+              <span className="workspace-title-line" key={line.key}>
+                <motion.span
+                  className="workspace-title-line-inner"
+                  initial={
+                    prefersReducedMotion ? false : { y: "108%", opacity: 0 }
+                  }
+                  animate={{ y: "0%", opacity: 1 }}
+                  transition={{
+                    duration: prefersReducedMotion ? 0 : 0.58,
+                    delay: prefersReducedMotion ? 0 : 0.16 + index * 0.12,
+                    ease: easeOut,
+                  }}
+                >
+                  {line.content}
+                </motion.span>
+              </span>
+            ))}
           </h1>
           <SelectionHandles />
           <span className="workspace-measure workspace-measure-width">
@@ -198,16 +315,20 @@ function Hero() {
         </motion.div>
         <motion.div
           className="workspace-hero-support"
-          initial={{ opacity: 0, y: 18 }}
+          initial={prefersReducedMotion ? false : { opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.25, duration: 0.7 }}
+          transition={{
+            delay: prefersReducedMotion ? 0 : 0.42,
+            duration: 0.55,
+            ease: easeOut,
+          }}
         >
           <p>
             I'm Kritvee, a UI/UX design student who enjoys understanding why
             people interact with things the way they do, and turning those
             observations into thoughtful experiences.
           </p>
-          <div>
+          <div className="workspace-hero-support-meta">
             <span>Kritvee Modi · Pune, India</span>
             <a href="#work" data-cursor="open">
               See what I've been working on ↓
@@ -215,23 +336,6 @@ function Hero() {
           </div>
         </motion.div>
       </div>
-      <motion.div
-        className="workspace-reference-layer"
-        onPointerMove={moveReference}
-        onPointerLeave={() => {
-          rawX.set(0)
-          rawY.set(0)
-        }}
-        style={{ x: fishX, y: fishY, rotate }}
-        data-cursor="inspect"
-        aria-hidden="true"
-      >
-        <span>REFERENCE / 01</span>
-        <div>
-          <img src={asset("6c383.png")} alt="" />
-        </div>
-        <i>↳ LOOK CLOSER</i>
-      </motion.div>
       <div className="workspace-hero-guide workspace-hero-guide-one" />
       <div className="workspace-hero-guide workspace-hero-guide-two" />
     </section>
