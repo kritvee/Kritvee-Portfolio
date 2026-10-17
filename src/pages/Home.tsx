@@ -370,12 +370,8 @@ function WorkspaceProject({
     target: wrapperRef,
     offset: ["start end", "end start"],
   })
-  const y = useTransform(scrollYProgress, [0, 0.28, 0.72, 1], [130, 0, 0, -55])
-  const scale = useTransform(
-    scrollYProgress,
-    [0, 0.3, 0.72, 1],
-    [0.965, 1, 1, 0.975],
-  )
+  const y = useTransform(scrollYProgress, [0, 0.5, 1], ["44%", "0%", "-20%"])
+  const scale = useTransform(scrollYProgress, [0, 0.5, 1], [0.96, 1, 0.98])
   const annotationOpacity = useTransform(
     scrollYProgress,
     [0.2, 0.36, 0.72, 0.88],

@@ -4,6 +4,8 @@ import {
   motion,
   MotionConfig,
   useMotionValue,
+  useReducedMotion,
+  useScroll,
   useSpring,
   useTransform,
 } from "motion/react"
@@ -12,168 +14,31 @@ import Navigation from "../components/Navigation"
 const asset = (name: string) => `/assets/${name}`
 
 const gallery = [
-  {
-    image: "6364b.png",
-    alt: "Sketchbook composition",
-    x: 29.22,
-    y: 0,
-    w: 17.89,
-    ratio: 962 / 926,
-  },
-  {
-    image: "fab97.png",
-    alt: "Installation artwork",
-    x: 47.99,
-    y: 42.09,
-    w: 30.46,
-    ratio: 660 / 430,
-  },
-  {
-    image: "6b735.png",
-    alt: "Portrait study",
-    x: 79.15,
-    y: 16.35,
-    w: 18.91,
-    ratio: 205.68 / 233.67,
-  },
-  {
-    image: "28d69.png",
-    alt: "Digital painting",
-    x: 1.07,
-    y: 55.71,
-    w: 14.1,
-    ratio: 2940 / 4096,
-  },
-  {
-    image: "89e10.png",
-    alt: "Observational drawing",
-    x: 16,
-    y: 104.54,
-    w: 12.17,
-    ratio: 254.1 / 191,
-    rotate: -90,
-  },
-  {
-    image: "5cd96.png",
-    alt: "Mixed media installation",
-    x: 29.05,
-    y: 280.9,
-    w: 18.06,
-    ratio: 379.34 / 283.23,
-    rotate: -90,
-  },
-  {
-    image: "92383.png",
-    alt: "Sculptural installation",
-    x: 69.07,
-    y: 364.91,
-    w: 30.93,
-    ratio: 660 / 431,
-  },
-  {
-    image: "14947.png",
-    alt: "Expressive portrait drawing",
-    x: 47.95,
-    y: 366.35,
-    w: 19.99,
-    ratio: 354.86 / 463.79,
-  },
-  {
-    image: "8b677.png",
-    alt: "Illustrated map artwork",
-    x: 0,
-    y: 374.12,
-    w: 27.93,
-    ratio: 4096 / 2664,
-  },
-  {
-    image: "f5ac4.png",
-    alt: "Still life drawing",
-    x: 2.16,
-    y: 672.3,
-    w: 19.48,
-    ratio: 800 / 624,
-  },
-  {
-    image: "34bcb.png",
-    alt: "Detailed ink illustration",
-    x: 22.66,
-    y: 670.86,
-    w: 24.43,
-    ratio: 2509 / 3921,
-  },
-  {
-    image: "4e2f7.png",
-    alt: "Figure study",
-    x: 68.67,
-    y: 690.87,
-    w: 13.55,
-    ratio: 341.06 / 532.77,
-  },
-  {
-    image: "a45ba.png",
-    alt: "Editorial poster artwork",
-    x: 83.02,
-    y: 690.86,
-    w: 15.63,
-    ratio: 573.06 / 784.88,
-  },
-  {
-    image: "d2bf5.png",
-    alt: "Painted portrait",
-    x: 47.9,
-    y: 790.93,
-    w: 20.04,
-    ratio: 2774 / 4096,
-  },
-  {
-    image: "a36ad.png",
-    alt: "Graphite portrait",
-    x: 1.86,
-    y: 923.66,
-    w: 20.11,
-    ratio: 340.18 / 372.13,
-  },
-  {
-    image: "06e1c.png",
-    alt: "Whale print",
-    x: 68.67,
-    y: 1036.48,
-    w: 29.94,
-    ratio: 443.44 / 323.16,
-  },
-  {
-    image: "d7d33.png",
-    alt: "Justice illustration",
-    x: 1.64,
-    y: 1281.11,
-    w: 24,
-    ratio: 965.07 / 1151.21,
-  },
-  {
-    image: "badde.png",
-    alt: "Pencil portrait",
-    x: 26.3,
-    y: 1281.11,
-    w: 20.79,
-    ratio: 326.1 / 372.65,
-  },
-  {
-    image: "cb2e0.png",
-    alt: "Color portrait study",
-    x: 47.9,
-    y: 1269.77,
-    w: 20.04,
-    ratio: 335.63 / 392.64,
-  },
-  {
-    image: "0a14e.png",
-    alt: "Fabric sculpture",
-    x: 68.67,
-    y: 1387.46,
-    w: 28.9,
-    ratio: 1516 / 1158,
-  },
+  /* Row 1 */
+  { image: "28d69.png", alt: "Handcrafted sinking ship sculpture" },
+  { image: "89e10.png", alt: "Blue cosmic landscape linocut print" },
+  { image: "6364b.png", alt: "Sand relief sculpture with embedded marbles" },
+  { image: "fab97.png", alt: "Paper-cut shadow box forest scene" },
+  { image: "6b735.png", alt: "Stippled portrait of Michelangelo's David" },
+  /* Row 2 */
+  { image: "8b677.png", alt: "Astronaut cockpit ink illustration" },
+  { image: "5cd96.png", alt: "Red cosmic landscape linocut print" },
+  { image: "14947.png", alt: "Graphite portrait with water highlights" },
+  { image: "92383.png", alt: "Backlit paper-cut shadow box" },
+  /* Row 3 */
+  { image: "f5ac4.png", alt: "Still life pencil drawing of lunch containers" },
+  { image: "34bcb.png", alt: "Justice tarot card ink illustration" },
+  { image: "d2bf5.png", alt: "Whimsical nocturnal landscape painting" },
+  { image: "4e2f7.png", alt: "Topographic line profile portrait" },
+  { image: "a45ba.png", alt: "MCGSMUN23 Secretariat poster design" },
+  /* Row 4 */
+  { image: "d7d33.png", alt: "Camera with golden light ribbons painting" },
+  { image: "badde.png", alt: "Graphite pencil portrait of a woman" },
+  { image: "cb2e0.png", alt: "Colored portrait with golden liquid" },
+  { image: "06e1c.png", alt: "Blue whale fabric installation sculpture" },
+  /* Row 5 */
+  { image: "a36ad.png", alt: "Pandemic portrait with masks pencil drawing" },
+  { image: "0a14e.png", alt: "Fruit still life graphite drawing" },
 ] as const
 
 const interests = [
@@ -237,22 +102,24 @@ function EducationCard() {
   return (
     <article className="about-card education-card">
       <h2>Education</h2>
-      <div className="education-entry">
-        <img src={asset("e0f29.png")} alt="" />
-        <div>
-          <h3>MIT Insititute of design</h3>
-          <p>Bachelor of Design (B.Des)</p>
-          <span>2024 – Present</span>
+      <div className="education-timeline">
+        <div className="education-entry">
+          <img src={asset("e0f29.png")} alt="" />
+          <div>
+            <h3>MIT Insititute of design</h3>
+            <p>Bachelor of Design (B.Des)</p>
+            <span>2024 – Present</span>
+          </div>
         </div>
-      </div>
-      <img className="education-line" src={asset("e1d91.svg")} alt="" />
-      <div className="education-entry">
-        <img src={asset("d030b.png")} alt="" />
-        <div>
-          <h3>Mayo College Girls’ School</h3>
-          <p>Higher Secondary Education</p>
-          <span>School Art President</span>
-          <span>Graduated 2024</span>
+        <div className="education-connector" aria-hidden="true" />
+        <div className="education-entry">
+          <img src={asset("d030b.png")} alt="" />
+          <div>
+            <h3>Mayo College Girls’ School</h3>
+            <p>Higher Secondary Education</p>
+            <span>School Art President</span>
+            <span>Graduated 2024</span>
+          </div>
         </div>
       </div>
     </article>
@@ -260,27 +127,12 @@ function EducationCard() {
 }
 
 const tools = [
-  { image: "39248.png", className: "tool-figma", level: 100, alt: "Figma" },
-  {
-    image: "a9454.png",
-    className: "tool-photoshop",
-    level: 60,
-    alt: "Photoshop",
-  },
-  { image: "e455c.png", className: "tool-miro", level: 82, alt: "Miro" },
-  {
-    image: "a9454.png",
-    className: "tool-illustrator",
-    level: 60,
-    alt: "Illustrator",
-  },
-  { image: "29331.png", className: "tool-canva", level: 100, alt: "Canva" },
-  {
-    image: "12f0d.png",
-    className: "tool-procreate",
-    level: 76,
-    alt: "Procreate",
-  },
+  { image: "39248.png", className: "tool-figma", alt: "Figma" },
+  { image: "", className: "tool-framer", alt: "Framer" },
+  { image: "e455c.png", className: "tool-miro", alt: "Miro" },
+  { image: "a9454.png", className: "tool-photoshop", alt: "Photoshop" },
+  { image: "a9454.png", className: "tool-illustrator", alt: "Illustrator" },
+  { image: "12f0d.png", className: "tool-procreate", alt: "Procreate" },
 ] as const
 
 function ToolsCard() {
@@ -289,13 +141,11 @@ function ToolsCard() {
       <h2>Tools</h2>
       <div className="tools-grid">
         {tools.map((tool) => (
-          <div className="tool" key={tool.alt} title={tool.alt}>
+          <div className="tool" key={tool.alt}>
             <span className={`tool-icon ${tool.className}`}>
-              <img src={asset(tool.image)} alt={tool.alt} />
+              {tool.image ? <img src={asset(tool.image)} alt="" /> : <b aria-hidden="true">F</b>}
             </span>
-            <span className="tool-level">
-              <i style={{ width: `${tool.level}%` }} />
-            </span>
+            <span className="tool-name">{tool.alt}</span>
           </div>
         ))}
       </div>
@@ -303,58 +153,43 @@ function ToolsCard() {
   )
 }
 
-function InterestsCard() {
-  return (
-    <article className="about-card design-card">
-      <h2>Design Interests</h2>
-      <ul>
-        <li>UX Research</li>
-        <li>Interaction Design</li>
-        <li>Visual Storytelling</li>
-        <li>Accessibility</li>
-        <li>Design Systems</li>
-        <li>Micro-interactions</li>
-        <li>Behavioral Design</li>
-        <li>Information Architecture</li>
-        <li>Usability Testing</li>
-      </ul>
-    </article>
-  )
-}
-
 function RevealHeading() {
-  const ref = useRef<HTMLDivElement>(null)
-  const pointerX = useMotionValue(0)
-  const pointerY = useMotionValue(0)
-  const x = useSpring(pointerX, { stiffness: 200, damping: 20 })
-  const y = useSpring(pointerY, { stiffness: 200, damping: 20 })
-  const clipPath = useTransform([x, y], ([latestX, latestY]) => {
-    return `circle(120px at ${latestX}px ${latestY}px)`
+  const reduceMotion = useReducedMotion()
+  const stageRef = useRef<HTMLDivElement>(null)
+  const { scrollYProgress } = useScroll({
+    target: stageRef,
+    offset: ["start 82%", "end 36%"],
   })
-
-  const centerLens = () => {
-    if (!ref.current) return
-    pointerX.set(ref.current.offsetWidth / 2)
-    pointerY.set(ref.current.offsetHeight / 2)
-  }
-
-  useEffect(centerLens, [])
+  const phraseX = useTransform(scrollYProgress, [0, 0.7, 1], [-96, 0, 0])
+  const artX = useTransform(scrollYProgress, [0, 0.7, 1], [96, 0, 0])
+  const lineLength = useTransform(scrollYProgress, [0.42, 0.82], [0, 1])
 
   return (
-    <div
-      ref={ref}
-      className="reveal-heading"
-      onPointerMove={(event) => {
-        const rect = event.currentTarget.getBoundingClientRect()
-        pointerX.set(event.clientX - rect.left)
-        pointerY.set(event.clientY - rect.top)
-      }}
-      onPointerLeave={centerLens}
-    >
-      <span>Before UX, there was art.</span>
-      <motion.span className="reveal-heading-highlight" style={{ clipPath }}>
-        Before UX, there was art.
-      </motion.span>
+    <div className="art-heading-stage" ref={stageRef}>
+      <div className="art-heading-sticky">
+        <motion.h2 className="reveal-heading" aria-label="BEFORE UX, THERE WAS ART">
+          <motion.span
+            className="reveal-heading-words"
+            aria-hidden="true"
+            style={reduceMotion ? undefined : { x: phraseX }}
+          >
+            BEFORE UX, THERE WAS
+          </motion.span>
+          <motion.em
+            aria-hidden="true"
+            style={reduceMotion ? undefined : { x: artX }}
+          >
+            ART
+          </motion.em>
+        </motion.h2>
+        <svg className="art-heading-mark" viewBox="0 0 240 20" aria-hidden="true">
+          <motion.path
+            d="M4 12C64 4 157 4 236 12"
+            style={reduceMotion ? undefined : { pathLength: lineLength }}
+            initial={reduceMotion ? { pathLength: 1 } : { pathLength: 0 }}
+          />
+        </svg>
+      </div>
     </div>
   )
 }
@@ -364,29 +199,16 @@ function ArtGallery() {
     <section className="art-section">
       <header>
         <RevealHeading />
-        <p>
-          A collection of sketches, installations, and experiments that shaped
-          how I see design today.
-        </p>
+        <p>A collection of sketches, installations, and experiments that shaped how I see design today.</p>
       </header>
       <div className="art-canvas">
         {gallery.map((item) => (
           <motion.figure
             key={item.image}
             className="art-tile"
-            style={{
-              left: `${item.x}%`,
-              top: `${(item.y / 1734) * 100}%`,
-              width: `${item.w}%`,
-              aspectRatio: `${item.ratio}`,
-              rotate: item.rotate ?? 0,
-            }}
-            whileHover={{
-              scale: 1.1,
-              rotate: 0,
-              boxShadow: "0px 8px 30px 0px rgba(0, 0, 0, 0.25)",
-            }}
-            transition={{ type: "spring", duration: 0.4, bounce: 0.2 }}
+            style={{ aspectRatio: `${item.ratio}` }}
+            whileHover={{ scale: 1.025 }}
+            transition={{ type: "spring", duration: 0.35, bounce: 0.12 }}
           >
             <img
               src={asset(item.image)}
@@ -426,15 +248,18 @@ function OtherInterests() {
       <h2>When I’m not designing, I’m:</h2>
       <div className="interest-list">
         {interests.map((interest, index) => (
-          <motion.p
+          <motion.button
+            type="button"
             key={interest.text}
             onHoverStart={() => setActive(index)}
             onHoverEnd={() => setActive(null)}
+            onFocus={() => setActive(index)}
+            onBlur={() => setActive(null)}
             animate={{ color: active === index ? "#ffffff" : "#ce9b97" }}
             transition={{ duration: 0.3 }}
           >
             {interest.text}
-          </motion.p>
+          </motion.button>
         ))}
       </div>
       <AnimatePresence>
@@ -463,6 +288,17 @@ function OtherInterests() {
 }
 
 export default function About() {
+  const strengths = [
+    "Interaction Design",
+    "Visual Storytelling",
+    "Accessibility",
+    "Design Systems",
+    "UX Research",
+    "Micro-interactions",
+    "Behavioral Design",
+    "Information Architecture",
+    "Usability Testing",
+  ]
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [])
@@ -498,7 +334,14 @@ export default function About() {
             <div className="skillset-grid">
               <EducationCard />
               <ToolsCard />
-              <InterestsCard />
+              <article className="about-card design-card">
+                <h2>DESIGN STRENGTHS</h2>
+                <ol>
+                  {strengths.map((strength) => (
+                    <li key={strength}>{strength}</li>
+                  ))}
+                </ol>
+              </article>
             </div>
           </section>
           <ArtGallery />
