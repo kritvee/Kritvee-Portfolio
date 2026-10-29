@@ -261,20 +261,13 @@ function PersonalityMoment() {
   )
 }
 
-const visualArchive = [
-  ...secondaryWork,
-  { image: "d7d33.png", alt: "Detailed justice illustration" },
-  { image: "fab97.png", alt: "Spatial installation artwork" },
-  { image: "06e1c.png", alt: "Illustrated whale print" },
-] as const
-
-const visualLabels = [
-  "VISUAL EXPERIMENT",
-  "GRAPHIC DESIGN",
-  "EXPLORATION",
-  "ILLUSTRATION",
-  "INSTALLATION",
-  "PRINT",
+const visualWork = [
+  { image: secondaryWork[0].image, alt: "Tarot Cards Reimagined: colourful illustrated tarot cards", title: "Tarot Cards Reimagined", category: "ILLUSTRATION" },
+  { image: secondaryWork[1].image, alt: "Retail Bags Catalogue: editorial and product design moodboard", title: "Retail Bags Catalogue", category: "EDITORIAL DESIGN" },
+  { image: secondaryWork[2].image, alt: "MCGSMUN logo design: illustrated dragon logo", title: "MCGSMUN Logo Design", category: "LOGO DESIGN" },
+  { image: "skin-and-me.png", alt: "Skin & Me logo on a skincare tube, serum bottles, jar, box and shopping bag", title: "Skin & Me", category: "LOGO DESIGN", position: "20% 50%" },
+  { image: "world-aviation-training.png", alt: "World Aviation Training logo on the side of an aircraft fuselage", title: "World Aviation Training", category: "LOGO DESIGN", position: "50% 50%" },
+  { image: "mcgsmun-tshirt.png", alt: "MCGSMUN23 Secretariat T-shirt graphic: a statue of Lady Justice with lightning on black", title: "MCGSMUN T-Shirt Design", category: "APPAREL GRAPHICS", position: "50% 40%" },
 ] as const
 
 function VisualWorkspace() {
@@ -283,15 +276,15 @@ function VisualWorkspace() {
       <motion.header {...reveal}>
         <div>
           <p className="workspace-annotation">WORKSPACE / VISUAL DESIGN</p>
-          <h2>Visual experiments</h2>
+          <h2 style={{ fontSize: "clamp(38px, 4.6vw, 72px)" }}>Graphic Design &amp; Visual Identity</h2>
         </div>
         <p>
-          A looser canvas for illustration, identity, image-making, and the
-          ideas that begin outside a product flow.
+          From brand identities and print to illustration and apparel, a selection of work exploring how visual ideas
+          take shape across different mediums.
         </p>
       </motion.header>
       <div className="workspace-visual-canvas">
-        {visualArchive.map((item, index) => (
+        {visualWork.map((item, index) => (
           <motion.figure
             key={item.image}
             className={`workspace-visual-artboard workspace-visual-artboard-${index + 1}`}
@@ -304,12 +297,15 @@ function VisualWorkspace() {
             <img
               src={asset(item.image)}
               alt={item.alt}
+              style={"position" in item ? { objectPosition: item.position } : undefined}
               loading="lazy"
               decoding="async"
             />
-            <figcaption>
-              <span>{String(index + 1).padStart(2, "0")}</span>
-              <span>{visualLabels[index]}</span>
+            <figcaption style={{ flexWrap: "wrap" }}>
+              <span>
+                {String(index + 1).padStart(2, "0")} · {item.title.toUpperCase()}
+              </span>
+              <span>{item.category}</span>
             </figcaption>
             <SelectionHandles />
           </motion.figure>

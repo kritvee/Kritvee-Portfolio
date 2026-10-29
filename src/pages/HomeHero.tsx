@@ -10,17 +10,19 @@ const LINE_1 = "I notice little things."
 const LINE_2 = "Then I design around them."
 const STEP = 0.022 // seconds per character
 const LINE_2_START = 0.12 + LINE_1.length * STEP + 0.08 // line 2 begins once line 1 is done
-const PASS = 0.38 // how much pigment one pass lays down; repeated passes build up to full colour
+const BRUSH = 0.82 // brush radius as a share of the old size (the ring shows this exact radius)
+const EASE = 0.55 // how tightly the brush follows the pointer each frame (1 = no smoothing)
 
 // Must match `object-position` in home-hero.css so the canvas stays aligned with the image.
 const focus = (): [number, number] => (window.matchMedia(MOBILE).matches ? [0.7, 0.5] : [0.5, 0.5])
 
-// Rusty reds, terracotta, ochre: pigment laid into the dark ink, top to bottom.
+// Deep rust, burnt terracotta, copper, amber and earthy brown, laid into the dark ink top to bottom.
 const PALETTE = [
-  [128, 48, 34],
-  [158, 76, 50],
-  [176, 110, 68],
-  [196, 150, 84],
+  [146, 38, 24],
+  [172, 62, 30],
+  [188, 92, 42],
+  [206, 128, 48],
+  [128, 74, 46],
 ] as const
 
 const smooth = (a: number, b: number, v: number) => {
@@ -45,16 +47,18 @@ function buildInk(img: HTMLImageElement, w: number, h: number, fx: number, fy: n
   for (let y = 0, i = 0; y < h; y++) {
     for (let x = 0; x < w; x++, i += 4) {
       const lum = (0.299 * px[i] + 0.587 * px[i + 1] + 0.114 * px[i + 2]) / 255
-      const ink = 1 - smooth(0.22, 0.5, lum) // 1 on black ink, 0 on cream paper
-      const f = Math.min(1, Math.max(0, 0.2 + 0.6 * (y / h) + 0.2 * Math.sin(x * 0.004 + y * 0.002))) * top
+      const ink = 1 - smooth(0.28, 0.6, lum) // 1 on dark ink, 0 on cream paper
+      const f = Math.min(1, Math.max(0, 0.15 + 0.7 * (y / h) + 0.15 * Math.sin(x * 0.004 + y * 0.002))) * top
       const k0 = Math.min(top - 1, Math.floor(f))
       const t = f - k0
       const a = PALETTE[k0]
       const b = PALETTE[k0 + 1]
-      const k = ink * (0.65 + 0.35 * Math.min(1, lum / 0.2)) * 0.85 // grain stays visible
+      // grain keeps the print's texture; slow variation keeps some shadows deep instead of one flat tone
+      const depth = 0.58 + 0.42 * (0.5 + 0.5 * Math.sin(x * 0.0065 + 1.3) * Math.sin(y * 0.0057 + 0.4))
+      const k = ink * (0.6 + 0.4 * Math.min(1, lum / 0.18)) * depth * 1.15
       px[i] = Math.min(255, px[i] + (a[0] + (b[0] - a[0]) * t) * k)
       px[i + 1] = Math.min(255, px[i + 1] + (a[1] + (b[1] - a[1]) * t) * k)
-      px[i + 2] = Math.min(255, px[i + 2] + (a[2] + (b[2] - a[2]) * t) * k)
+      px[i + 2] = Math.min(255, px[i + 2] * (1 - 0.06 * (1 - ink)) + (a[2] + (b[2] - a[2]) * t) * k) // paper stays warm
       px[i + 3] = 255
     }
   }
@@ -62,43 +66,26 @@ function buildInk(img: HTMLImageElement, w: number, h: number, fx: number, fy: n
   return c
 }
 
-interface Bristle {
-  ox: number
-  oy: number
-  w: number
-  a: number
-  skip: number
-}
-
-/** A dry, rough brush: bristles scattered in a jagged-edged disc, a few strays outside it. */
-function makeBristles(R: number): Bristle[] {
-  const list: Bristle[] = []
-  const ph = Math.random() * 6.283
-  for (let i = 0; i < 62; i++) {
-    const th = Math.random() * 6.283
-    const edge = 0.8 + 0.14 * Math.sin(3 * th + ph) + 0.08 * Math.sin(7 * th + ph * 2)
-    const d = R * edge * Math.sqrt(Math.random()) * (i < 54 ? 1 : 1.25)
-    list.push({
-      ox: Math.cos(th) * d,
-      oy: Math.sin(th) * d,
-      w: R * (i < 54 ? 0.03 + Math.random() * 0.045 : 0.015 + Math.random() * 0.02),
-      a: 0.55 + Math.random() * 0.45,
-      skip: Math.random() * 0.55, // dry bristles leave broken marks
-    })
+/** One broad, softly irregular swath of pigment: the outline drifts as `ph` advances, so no two dabs match. */
+function blob(ctx: CanvasRenderingContext2D, x: number, y: number, B: number, ph: number) {
+  const n = 36
+  ctx.beginPath()
+  for (let i = 0; i < n; i++) {
+    const th = (i / n) * Math.PI * 2
+    const r = B * (1 + 0.09 * Math.sin(3 * th + ph) + 0.06 * Math.sin(5 * th - ph * 1.3) + 0.025 * Math.sin(11 * th + ph * 2.1))
+    const px = x + Math.cos(th) * r
+    const py = y + Math.sin(th) * r
+    if (i) ctx.lineTo(px, py)
+    else ctx.moveTo(px, py)
   }
-  return list
-}
-
-function drawSeg(ctx: CanvasRenderingContext2D, bs: Bristle[], x0: number, y0: number, x1: number, y1: number) {
-  ctx.lineCap = "butt"
-  for (const b of bs) {
-    if (Math.random() < b.skip) continue
-    ctx.strokeStyle = `rgba(0,0,0,${b.a})`
-    ctx.lineWidth = b.w * (0.8 + Math.random() * 0.4)
+  ctx.closePath()
+  ctx.fill()
+  if (Math.random() < 0.06) {
+    const a = Math.random() * Math.PI * 2
+    const d = B * (1 + Math.random() * 0.16)
     ctx.beginPath()
-    ctx.moveTo(x0 + b.ox, y0 + b.oy)
-    ctx.lineTo(x1 + b.ox, y1 + b.oy)
-    ctx.stroke()
+    ctx.arc(x + Math.cos(a) * d, y + Math.sin(a) * d, B * (0.04 + Math.random() * 0.06), 0, Math.PI * 2)
+    ctx.fill()
   }
 }
 
@@ -166,7 +153,7 @@ export default function HomeHero() {
     return () => ro.disconnect()
   }, [])
 
-  // Persistent, accumulating brush on a canvas aligned with the artwork.
+  // Persistent paint mask: one pass reveals full colour, repeating a pass changes nothing further.
   useEffect(() => {
     if (reduce) return
     const hero = heroRef.current
@@ -179,55 +166,27 @@ export default function HomeHero() {
     const img = new Image()
     img.decoding = "async"
     let ink: HTMLCanvasElement | null = null
-    let mask = document.createElement("canvas") // committed passes
-    let stroke = document.createElement("canvas") // pass in progress
-    let comp = document.createElement("canvas") // scratch for compositing
-    let bristles: Bristle[] | null = null
-    let last: [number, number] | null = null
-    let travel = 0
+    let mask = document.createElement("canvas")
     let raf = 0
-    let idle = 0
+    let have = false // brush has a current position
+    let touch = false
+    let tx = 0 // pointer target, client px
+    let ty = 0
+    let cx = 0 // brush position, client px
+    let cy = 0
+    let phase = Math.random() * 6.28
     let dirty = false
+    let drawing = false
 
-    const render = () => {
-      raf = 0
+    const present = () => {
       if (!ink || !dirty) return
       dirty = false
-      const cc = comp.getContext("2d")
-      if (!cc) return
-      cc.clearRect(0, 0, comp.width, comp.height)
-      cc.drawImage(mask, 0, 0)
-      cc.globalAlpha = PASS
-      cc.drawImage(stroke, 0, 0)
-      cc.globalAlpha = 1
       out.globalCompositeOperation = "copy"
       out.drawImage(ink, 0, 0)
       out.globalCompositeOperation = "destination-in"
-      out.drawImage(comp, 0, 0)
+      out.drawImage(mask, 0, 0)
       out.globalCompositeOperation = "source-over"
     }
-    const schedule = () => {
-      dirty = true
-      if (!raf) raf = requestAnimationFrame(render)
-    }
-    const commit = () => {
-      const sc = stroke.getContext("2d")
-      const mc = mask.getContext("2d")
-      if (!sc || !mc) return
-      mc.globalAlpha = PASS
-      mc.drawImage(stroke, 0, 0)
-      mc.globalAlpha = 1
-      sc.clearRect(0, 0, stroke.width, stroke.height)
-      travel = 0
-    }
-    const endStroke = () => {
-      window.clearTimeout(idle)
-      commit()
-      bristles = null
-      last = null
-      schedule()
-    }
-
     const setup = () => {
       if (!img.complete || !img.naturalWidth) return
       const cssW = art.offsetWidth
@@ -244,59 +203,77 @@ export default function HomeHero() {
       next.height = h
       if (mask.width && mask.height) next.getContext("2d")?.drawImage(mask, 0, 0, w, h)
       mask = next
-      stroke = document.createElement("canvas")
-      stroke.width = w
-      stroke.height = h
-      comp = document.createElement("canvas")
-      comp.width = w
-      comp.height = h
       canvas.width = w
       canvas.height = h
-      bristles = null
-      last = null
-      schedule()
+      dirty = true
+      present()
     }
 
-    const radius = (touch: boolean) => Math.min(140, Math.max(64, window.innerWidth * 0.085)) * (touch ? 0.7 : 1)
+    const brushPx = () => Math.min(140, Math.max(64, window.innerWidth * 0.085)) * BRUSH * (touch ? 0.8 : 1)
 
-    const onMove = (e: PointerEvent) => {
-      const touch = e.pointerType !== "mouse"
-      const R = radius(touch)
-      const onControl = !!(e.target as HTMLElement).closest("a,button")
+    const tick = () => {
+      raf = 0
+      if (!have) return
+      const B = brushPx()
+      const dx = tx - cx
+      const dy = ty - cy
+      const dist = Math.hypot(dx, dy)
+      const nx = dist < 0.4 ? tx : cx + dx * EASE
+      const ny = dist < 0.4 ? ty : cy + dy * EASE
       if (ring && !touch) {
         const hr = hero.getBoundingClientRect()
-        ring.style.width = ring.style.height = `${R * 2}px`
-        ring.style.transform = `translate3d(${e.clientX - hr.left - R}px, ${e.clientY - hr.top - R}px, 0)`
-        ring.style.opacity = onControl ? "0" : "1"
+        ring.style.width = ring.style.height = `${B * 2}px`
+        ring.style.transform = `translate3d(${nx - hr.left - B}px, ${ny - hr.top - B}px, 0)`
       }
-      if (!ink || onControl || (touch && e.buttons === 0)) {
-        if (onControl && bristles) endStroke()
+      const mc = ink && drawing ? mask.getContext("2d") : null
+      if (mc) {
+        const rect = art.getBoundingClientRect()
+        const k = canvas.width / rect.width
+        const r = B * k
+        mc.fillStyle = "#000"
+        mc.shadowColor = "#000"
+        mc.shadowBlur = r * 0.1 // soft feathered edge
+        const seg = Math.hypot(nx - cx, ny - cy) * k
+        const steps = Math.max(1, Math.ceil(seg / (r * 0.12))) // dense stamps: no gaps, however fast
+        for (let n = 1; n <= steps; n++) {
+          const u = n / steps
+          phase += (seg / steps / r) * 0.9
+          blob(mc, (cx + (nx - cx) * u - rect.left) * k, (cy + (ny - cy) * u - rect.top) * k, r, phase)
+        }
+        mc.shadowBlur = 0
+        dirty = true
+        present()
+      }
+      cx = nx
+      cy = ny
+      if (dist >= 0.4) raf = requestAnimationFrame(tick)
+    }
+    const wake = () => {
+      if (!raf) raf = requestAnimationFrame(tick)
+    }
+
+    const onMove = (e: PointerEvent) => {
+      touch = e.pointerType !== "mouse"
+      const onControl = !!(e.target as HTMLElement).closest("a,button")
+      if (ring) ring.style.opacity = touch || onControl ? "0" : "1"
+      if (onControl || (touch && e.buttons === 0)) {
+        have = false
         return
       }
+      tx = e.clientX
+      ty = e.clientY
+      if (!have) {
+        cx = tx
+        cy = ty
+        have = true
+      }
       const rect = art.getBoundingClientRect()
-      if (e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom) return
-      const k = canvas.width / rect.width
-      const x = (e.clientX - rect.left) * k
-      const y = (e.clientY - rect.top) * k
-      const sc = stroke.getContext("2d")
-      if (!sc) return
-      if (!bristles) bristles = makeBristles(R * k)
-      if (last) {
-        drawSeg(sc, bristles, last[0], last[1], x, y)
-        travel += Math.hypot(x - last[0], y - last[1])
-        if (travel > R * k * 8) commit() // start a fresh layer so crossing passes build up
-      } else drawSeg(sc, bristles, x, y, x + 1, y + 1)
-      last = [x, y]
-      schedule()
-      window.clearTimeout(idle)
-      idle = window.setTimeout(endStroke, 280)
+      drawing = tx >= rect.left && tx <= rect.right && ty >= rect.top && ty <= rect.bottom
+      wake()
     }
-    const onEnter = (e: PointerEvent) => {
-      if (ring && e.pointerType === "mouse") ring.style.opacity = "1"
-    }
-    const onLeave = () => {
+    const onEnd = () => {
+      have = false
       if (ring) ring.style.opacity = "0"
-      endStroke()
     }
 
     img.onload = setup
@@ -304,21 +281,18 @@ export default function HomeHero() {
     const ro = new ResizeObserver(setup)
     ro.observe(art)
     hero.addEventListener("pointermove", onMove)
-    hero.addEventListener("pointerenter", onEnter)
-    hero.addEventListener("pointerleave", onLeave)
-    hero.addEventListener("pointerup", endStroke)
-    hero.addEventListener("pointercancel", endStroke)
+    hero.addEventListener("pointerleave", onEnd)
+    hero.addEventListener("pointerup", onEnd)
+    hero.addEventListener("pointercancel", onEnd)
 
     return () => {
       cancelAnimationFrame(raf)
-      window.clearTimeout(idle)
       ro.disconnect()
       img.onload = null
       hero.removeEventListener("pointermove", onMove)
-      hero.removeEventListener("pointerenter", onEnter)
-      hero.removeEventListener("pointerleave", onLeave)
-      hero.removeEventListener("pointerup", endStroke)
-      hero.removeEventListener("pointercancel", endStroke)
+      hero.removeEventListener("pointerleave", onEnd)
+      hero.removeEventListener("pointerup", onEnd)
+      hero.removeEventListener("pointercancel", onEnd)
     }
   }, [reduce])
 
@@ -361,6 +335,7 @@ export default function HomeHero() {
           Explore my work <span aria-hidden="true">↓</span>
         </motion.a>
       </div>
+      <p className="hp-credit">Original printmaking artwork · Hand-pulled textures and layered ink</p>
     </section>
   )
 }
