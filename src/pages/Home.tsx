@@ -6,12 +6,11 @@ import {
   useScroll,
   useSpring,
   useTransform,
-  type MotionValue,
 } from "motion/react"
-import type { PointerEvent as ReactPointerEvent } from "react"
 import { useEffect, useRef, useState } from "react"
 import Navigation from "../components/Navigation"
 import { projects, secondaryWork } from "../data/portfolio"
+import HomeHero from "./HomeHero"
 
 const asset = (name: string) => `/assets/${name}`
 type Project = typeof projects[number]
@@ -24,25 +23,6 @@ const reveal = {
   viewport: { once: true, amount: 0.18 },
   transition: { duration: 0.68, ease: easeOut },
 }
-
-const titleLines = [
-  {
-    key: "line-1",
-    content: (
-      <>
-        I notice <em>little things.</em>
-      </>
-    ),
-  },
-  {
-    key: "line-2",
-    content: (
-      <>
-        Then I <em>design around them.</em>
-      </>
-    ),
-  },
-]
 
 function ArtworkLayer({
   className,
@@ -64,43 +44,16 @@ function ArtworkLayer({
 
 function CapyArtwork() {
   return (
-    <div className="artwork capy-artwork">
-      <ArtworkLayer className="capy-line capy-line-one" name="ed7e5.svg" />
-      <ArtworkLayer className="capy-screen capy-screen-five" name="68c93.png" />
-      <ArtworkLayer className="capy-line capy-line-two" name="d532e.svg" />
-      <ArtworkLayer className="capy-screen capy-screen-one" name="556d8.png" />
-      <ArtworkLayer className="capy-line capy-line-three" name="4e9d0.svg" />
-      <ArtworkLayer className="capy-screen capy-screen-two" name="606b1.png" />
-      <ArtworkLayer
-        className="capy-screen capy-screen-three"
-        name="08088.png"
-      />
-      <ArtworkLayer className="capy-screen capy-screen-four" name="d82d6.png" />
+    <div className="artwork capy-artwork card-artwork-capy">
+      <ArtworkLayer className="portfolio-card-image" name="home-cards/capygo.png" />
     </div>
   )
 }
 
 function RoopArtwork() {
-  const screens = [
-    ["155a0.png", "roop-one"],
-    ["e8cd6.png", "roop-two"],
-    ["dfbd7.png", "roop-three"],
-    ["8a3ed.png", "roop-four"],
-    ["77623.png", "roop-five"],
-    ["b5b79.png", "roop-six"],
-    ["92260.png", "roop-seven"],
-    ["3aa85.png", "roop-eight"],
-  ] as const
-
   return (
-    <div className="artwork roop-artwork">
-      {screens.map(([image, className]) => (
-        <ArtworkLayer
-          key={image}
-          className={`roop-screen ${className}`}
-          name={image}
-        />
-      ))}
+    <div className="artwork roop-artwork card-artwork-roop">
+      <ArtworkLayer className="portfolio-card-image" name="home-cards/roop.png" />
     </div>
   )
 }
@@ -116,9 +69,20 @@ function SplitwiseArtwork() {
   )
 }
 
+function LoadingArtwork() {
+  return (
+    <div className="artwork loading-artwork">
+      <ArtworkLayer className="loading-screen loading-screen-basic" name="loading/basic.png" />
+      <ArtworkLayer className="loading-screen loading-screen-fancy" name="loading/fancy.png" />
+      <ArtworkLayer className="loading-screen loading-screen-skeleton" name="loading/skeleton.png" />
+    </div>
+  )
+}
+
 function ProjectArtwork({ slug }: { slug: Project["slug"] }) {
   if (slug === "capy") return <CapyArtwork />
   if (slug === "roop") return <RoopArtwork />
+  if (slug === "loading") return <LoadingArtwork />
   return <SplitwiseArtwork />
 }
 
@@ -179,166 +143,6 @@ function WorkspaceCursor() {
       <span />
       {cursorLabels[mode] && <em>{cursorLabels[mode]}</em>}
     </motion.div>
-  )
-}
-
-function HeroInspectOverlay({
-  x,
-  y,
-  label,
-  visible,
-}: {
-  x: MotionValue<number>
-  y: MotionValue<number>
-  label: string
-  visible: boolean
-}) {
-  return (
-    <motion.div
-      className="workspace-hero-inspect"
-      aria-hidden="true"
-      animate={{ opacity: visible ? 1 : 0 }}
-      transition={{ duration: 0.18 }}
-    >
-      <motion.span className="workspace-hero-inspect-x" style={{ left: x }} />
-      <motion.span className="workspace-hero-inspect-y" style={{ top: y }} />
-      <motion.div
-        className="workspace-hero-inspect-readout"
-        style={{ x, y }}
-      >
-        <i />
-        <em>{label}</em>
-      </motion.div>
-    </motion.div>
-  )
-}
-
-function Hero() {
-  const prefersReducedMotion = useReducedMotion()
-  const heroRef = useRef<HTMLElement>(null)
-  const rawX = useMotionValue(0)
-  const rawY = useMotionValue(0)
-  const x = useSpring(rawX, { stiffness: 420, damping: 38, mass: 0.28 })
-  const y = useSpring(rawY, { stiffness: 420, damping: 38, mass: 0.28 })
-  const [inspectVisible, setInspectVisible] = useState(false)
-  const [inspectLabel, setInspectLabel] = useState("INSPECT / 000 · 000")
-  const [finePointer, setFinePointer] = useState(false)
-
-  useEffect(() => {
-    const media = window.matchMedia("(pointer: fine) and (hover: hover)")
-    const sync = () => setFinePointer(media.matches)
-    sync()
-    media.addEventListener("change", sync)
-    return () => media.removeEventListener("change", sync)
-  }, [])
-
-  const handlePointerMove = (event: ReactPointerEvent<HTMLElement>) => {
-    if (!finePointer || !heroRef.current) return
-    const rect = heroRef.current.getBoundingClientRect()
-    const localX = event.clientX - rect.left
-    const localY = event.clientY - rect.top
-    rawX.set(localX)
-    rawY.set(localY)
-    setInspectVisible(true)
-
-    const target = (event.target as HTMLElement).closest<HTMLElement>(
-      "[data-cursor]",
-    )
-    const mode = target?.dataset.cursor
-    const coords = `${String(Math.round(localX)).padStart(3, "0")} · ${String(Math.round(localY)).padStart(3, "0")}`
-    if (mode === "open") setInspectLabel(`TARGET / ${coords}`)
-    else if (mode === "inspect") setInspectLabel(`FRAME / ${coords}`)
-    else setInspectLabel(`INSPECT / ${coords}`)
-  }
-
-  const handlePointerLeave = () => setInspectVisible(false)
-
-  return (
-    <section
-      ref={heroRef}
-      className="workspace-hero"
-      id="top"
-      onPointerMove={handlePointerMove}
-      onPointerLeave={handlePointerLeave}
-    >
-      {finePointer && (
-        <HeroInspectOverlay
-          x={x}
-          y={y}
-          label={inspectLabel}
-          visible={inspectVisible}
-        />
-      )}
-      <div className="workspace-hero-grid">
-        <motion.p
-          className="workspace-eyebrow"
-          initial={prefersReducedMotion ? false : { opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45, ease: easeOut }}
-        >
-          UI/UX + PRODUCT DESIGNER
-        </motion.p>
-        <motion.div
-          className="workspace-headline-frame"
-          data-cursor="inspect"
-          initial={prefersReducedMotion ? false : { opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.3, delay: prefersReducedMotion ? 0 : 0.08 }}
-        >
-          <p className="workspace-annotation workspace-headline-note">
-            01 / OBSERVATION
-          </p>
-          <h1>
-            {titleLines.map((line, index) => (
-              <span className="workspace-title-line" key={line.key}>
-                <motion.span
-                  className="workspace-title-line-inner"
-                  initial={
-                    prefersReducedMotion ? false : { y: "108%", opacity: 0 }
-                  }
-                  animate={{ y: "0%", opacity: 1 }}
-                  transition={{
-                    duration: prefersReducedMotion ? 0 : 0.58,
-                    delay: prefersReducedMotion ? 0 : 0.16 + index * 0.12,
-                    ease: easeOut,
-                  }}
-                >
-                  {line.content}
-                </motion.span>
-              </span>
-            ))}
-          </h1>
-          <SelectionHandles />
-          <span className="workspace-measure workspace-measure-width">
-            12 COL / ALIGNED
-          </span>
-        </motion.div>
-        <motion.div
-          className="workspace-hero-support"
-          initial={prefersReducedMotion ? false : { opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{
-            delay: prefersReducedMotion ? 0 : 0.42,
-            duration: 0.55,
-            ease: easeOut,
-          }}
-        >
-          <p>
-            I'm Kritvee, a UI/UX design student who enjoys understanding why
-            people interact with things the way they do, and turning those
-            observations into thoughtful experiences.
-          </p>
-          <div className="workspace-hero-support-meta">
-            <span>Kritvee Modi · Pune, India</span>
-            <a href="#work" data-cursor="open">
-              See what I've been working on ↓
-            </a>
-          </div>
-        </motion.div>
-      </div>
-      <div className="workspace-hero-guide workspace-hero-guide-one" />
-      <div className="workspace-hero-guide workspace-hero-guide-two" />
-    </section>
   )
 }
 
@@ -406,7 +210,9 @@ function WorkspaceProject({
               <span>{project.discipline}</span>
             </div>
           </header>
-          <div className="workspace-artboard-visual">
+          <div
+            className={`workspace-artboard-visual workspace-artboard-visual-${project.slug}`}
+          >
             <ProjectArtwork slug={project.slug} />
             <span className="workspace-artboard-state">FINAL / SELECTED</span>
           </div>
@@ -592,7 +398,7 @@ export default function Home() {
         <WorkspaceCursor />
         <Navigation />
         <main>
-          <Hero />
+          <HomeHero />
           <UXWorkspace />
           <PersonalityMoment />
           <VisualWorkspace />

@@ -1,0 +1,33 @@
+.hp-hero{position:relative;display:flex;min-height:calc(100svh - 66px);align-items:center;overflow:hidden;isolation:isolate;border-bottom:1px solid var(--workspace-line);padding:clamp(48px,7vh,88px) var(--workspace-gutter) clamp(88px,16vh,170px) 5.5vw;touch-action:pan-y;background:#0b0b0a}
+.hp-art{position:absolute;z-index:0;inset:0}
+.hp-img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 50%;opacity:.36}
+.hp-static .hp-img{opacity:.85}
+.hp-paint{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.hp-shade{position:absolute;z-index:1;inset:0;pointer-events:none;background:linear-gradient(90deg,rgba(8,8,7,.5) 0%,rgba(8,8,7,.3) 38%,rgba(8,8,7,0) 62%)}
+.hp-ring{position:absolute;z-index:2;top:0;left:0;width:240px;height:240px;border:1px solid rgba(242,238,229,.3);border-radius:52% 48% 55% 45% / 47% 56% 44% 53%;background:rgba(242,238,229,.05);box-shadow:inset 0 0 0 5px rgba(242,238,229,.03);opacity:0;pointer-events:none;will-change:transform}
+.hp-copy{position:relative;z-index:3;display:flex;width:min(48vw,780px);flex-direction:column;align-items:flex-start;gap:clamp(14px,2vh,22px)}
+.hp-role,.hp-place{margin:0;font-family:"Inter:Medium",sans-serif;font-size:clamp(10px,.78vw,12px);letter-spacing:.16em;color:#bdb9ad}
+.hp-title{margin:0;font-family:"Montserrat:Bold",sans-serif;font-size:clamp(30px,3.3vw,72px);font-weight:700;line-height:1.02;letter-spacing:-.07em;color:var(--workspace-cream);text-shadow:0 2px 24px rgba(0,0,0,.55)}
+.hp-line{display:block;width:max-content;white-space:nowrap}
+.hp-word{display:inline-block;white-space:nowrap}
+.hp-char{display:inline-block}
+.hp-link{position:relative;margin-top:clamp(2px,.8vh,10px);padding-bottom:7px;font-family:"Inter:Medium",sans-serif;font-size:clamp(13px,1vw,15px);color:var(--workspace-cream)}
+.hp-link::after{position:absolute;right:0;bottom:0;left:0;height:1px;background:currentColor;content:"";transform:scaleX(.28);transform-origin:left;transition:transform 350ms cubic-bezier(.22,1,.36,1)}
+.hp-link span{display:inline-block;margin-left:6px;transition:transform 300ms cubic-bezier(.22,1,.36,1)}
+.hp-link:hover::after,.hp-link:focus-visible::after{transform:scaleX(1)}
+.hp-link:hover span,.hp-link:focus-visible span{transform:translateY(3px)}
+/* Over the hero, the brush ring replaces the site's diamond cursor; links keep a normal pointer. */
+@media(pointer:fine){
+.workspace-home:has(.hp-hero:hover) .workspace-cursor{display:none!important}
+.hp-hero{cursor:none}
+.hp-hero a.hp-link{cursor:pointer}}
+@media(pointer:coarse){.hp-ring{display:none}}
+@media(max-width:900px){.hp-hero{padding-left:var(--workspace-gutter)}.hp-copy{width:min(70vw,560px)}}
+@media(max-width:700px){
+.hp-hero{min-height:calc(100svh - 58px);align-items:flex-start;padding:48px var(--workspace-gutter) 56px}
+.hp-img{object-position:70% 50%}
+.hp-shade{background:linear-gradient(180deg,rgba(8,8,7,.7) 0%,rgba(8,8,7,.4) 55%,rgba(8,8,7,.1) 100%)}
+.hp-copy{width:100%}
+.hp-title{font-size:clamp(34px,9.6vw,44px)}
+.hp-line{width:auto;white-space:normal}}
+@media(prefers-reduced-motion:reduce){.hp-link::after,.hp-link span{transition:none}}

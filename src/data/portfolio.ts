@@ -20,14 +20,14 @@ export const projects = [
     href: "/roop",
   },
   {
-    slug: "splitwise",
+    slug: "loading",
     number: "03",
-    title: "Splitwise Redesign",
+    title: "The Psychology of Loading",
     description:
-      "Reimagining expense splitting as a playful, game-like experience without altering core functionality.",
-    discipline: "UX redesign · Interaction design",
-    accent: "sage",
-    href: "/splitwise",
+      "An experimental UX research study exploring how interface design and loading animations influence perceived waiting time.",
+    discipline: "UX RESEARCH · EXPERIMENTAL STUDY",
+    accent: "blue",
+    href: "/loading",
   },
 ] as const
 

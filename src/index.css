@@ -483,6 +483,21 @@ img {
   height: 84.13%;
 }
 
+.card-artwork-capy {
+  background: #dfcc93;
+}
+
+.card-artwork-roop {
+  background: #38282f;
+}
+
+.portfolio-card-image {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
 .splitwise-artwork {
   border-color: #35472f;
   background: #687664;
@@ -499,6 +514,38 @@ img {
 
 .split-screen {
   object-fit: fill;
+}
+
+.loading-artwork {
+  border-color: #343a73;
+  background: #17171b;
+}
+
+.loading-screen {
+  border: 1px solid rgba(242, 238, 229, 0.2);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+  object-fit: cover;
+}
+
+.loading-screen-basic {
+  top: 16%;
+  left: 4%;
+  width: 47%;
+  transform: rotate(-6deg);
+}
+
+.loading-screen-fancy {
+  top: 25%;
+  left: 31%;
+  width: 42%;
+  transform: rotate(3deg);
+}
+
+.loading-screen-skeleton {
+  top: 13%;
+  left: 57%;
+  width: 39%;
+  transform: rotate(-3deg);
 }
 
 .split-one {
@@ -3476,6 +3523,10 @@ a:focus-visible .studio-arrow-link > span:last-child {
   z-index: 3;
 }
 
+.workspace-project-wrap-4 {
+  z-index: 4;
+}
+
 .workspace-artboard {
   --note-opacity: 0;
   position: sticky;
@@ -4063,6 +4114,12 @@ a:focus-visible .studio-arrow-link > span:last-child {
     min-height: 460px;
   }
 
+  .workspace-artboard-capy,
+  .workspace-artboard-roop {
+    height: min(calc(100svh - 150px), 380px);
+    min-height: 340px;
+  }
+
   .workspace-artboard > a {
     gap: 12px;
     padding: 14px;
@@ -4089,6 +4146,20 @@ a:focus-visible .studio-arrow-link > span:last-child {
   .workspace-artboard-visual .artwork {
     width: 155%;
     margin-left: -27.5%;
+  }
+
+  .workspace-artboard-visual .card-artwork-capy,
+  .workspace-artboard-visual .card-artwork-roop {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .workspace-artboard-visual-capy,
+  .workspace-artboard-visual-roop {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1.8;
+    align-self: center;
   }
 
   .workspace-artboard-foot {

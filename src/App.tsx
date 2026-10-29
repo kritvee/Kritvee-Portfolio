@@ -2,8 +2,11 @@ import { Component } from "react"
 import type { ErrorInfo, ReactNode } from "react"
 import { projects } from "./data/portfolio"
 import About from "./pages/About"
+import CapyGo from "./pages/CapyGo"
 import CaseStudyPlaceholder from "./pages/CaseStudyPlaceholder"
 import Home from "./pages/Home"
+import Loading from "./pages/Loading"
+import Roop from "./pages/Roop"
 
 class AppErrorBoundary extends Component<{ children: ReactNode }, {
   hasError: boolean
@@ -40,6 +43,12 @@ export default function App() {
     <AppErrorBoundary>
       {path === "/about" ? (
         <About />
+      ) : path === "/capy" ? (
+        <CapyGo />
+      ) : path === "/roop" ? (
+        <Roop />
+      ) : path === "/loading" ? (
+        <Loading />
       ) : project ? (
         <CaseStudyPlaceholder project={project} />
       ) : (
