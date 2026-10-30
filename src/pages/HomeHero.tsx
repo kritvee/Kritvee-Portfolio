@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react"
 import { motion, useReducedMotion } from "motion/react"
 import "./home-hero.css"
 
-// Save your printmaking image at public/assets/homepage/hero/print-hero.png.
+// The printmaking image lives in public/assets/homepage/hero/.
 const ART = "/assets/homepage/hero/print-hero.png"
 const MOBILE = "(max-width: 700px)"
 const easeOut = [0.22, 1, 0.36, 1] as const
@@ -12,6 +12,9 @@ const STEP = 0.022 // seconds per character
 const LINE_2_START = 0.12 + LINE_1.length * STEP + 0.08 // line 2 begins once line 1 is done
 const BRUSH = 0.82 // brush radius as a share of the old size (the ring shows this exact radius)
 const EASE = 0.55 // how tightly the brush follows the pointer each frame (1 = no smoothing)
+const DELAY = 1400 // ms a stroke stays at full colour before it starts to fade
+const DECAY = 0.05 // share of remaining pigment removed per fade step
+const DECAY_EVERY = 70 // ms between fade steps (about a one-second half-life)
 
 // Must match `object-position` in home-hero.css so the canvas stays aligned with the image.
 const focus = (): [number, number] => (window.matchMedia(MOBILE).matches ? [0.7, 0.5] : [0.5, 0.5])
@@ -153,7 +156,7 @@ export default function HomeHero() {
     return () => ro.disconnect()
   }, [])
 
-  // Persistent paint mask: one pass reveals full colour, repeating a pass changes nothing further.
+  // Persistent paint mask: one pass reveals full colour, then the colour fades slowly back into the print.
   useEffect(() => {
     if (reduce) return
     const hero = heroRef.current
@@ -165,8 +168,22 @@ export default function HomeHero() {
 
     const img = new Image()
     img.decoding = "async"
+    const make = (w = 0, h = 0) => {
+      const c = document.createElement("canvas")
+      c.width = w
+      c.height = h
+      return c
+    }
+    const remap = (c: HTMLCanvasElement, w: number, h: number) => {
+      const n = make(w, h)
+      if (c.width && c.height) n.getContext("2d")?.drawImage(c, 0, 0, w, h)
+      return n
+    }
     let ink: HTMLCanvasElement | null = null
-    let mask = document.createElement("canvas")
+    let mask = make() // painted colour that is fading
+    let waiting = make() // strokes holding at full colour (second half of the delay)
+    let fresh = make() // strokes being painted now (first half of the delay)
+    let comp = make() // scratch for compositing
     let raf = 0
     let have = false // brush has a current position
     let touch = false
@@ -177,14 +194,24 @@ export default function HomeHero() {
     let phase = Math.random() * 6.28
     let dirty = false
     let drawing = false
+    let hasPaint = false
+    let swapAt = 0
+    let decayAt = 0
+    let lastPaint = 0
 
     const present = () => {
       if (!ink || !dirty) return
       dirty = false
+      const cc = comp.getContext("2d")
+      if (!cc) return
+      cc.clearRect(0, 0, comp.width, comp.height)
+      cc.drawImage(mask, 0, 0)
+      cc.drawImage(waiting, 0, 0)
+      cc.drawImage(fresh, 0, 0)
       out.globalCompositeOperation = "copy"
       out.drawImage(ink, 0, 0)
       out.globalCompositeOperation = "destination-in"
-      out.drawImage(mask, 0, 0)
+      out.drawImage(comp, 0, 0)
       out.globalCompositeOperation = "source-over"
     }
     const setup = () => {
@@ -198,11 +225,10 @@ export default function HomeHero() {
       if (canvas.width === w && canvas.height === h && ink) return
       const [fx, fy] = focus()
       ink = buildInk(img, w, h, fx, fy)
-      const next = document.createElement("canvas") // keep painted state across resizes
-      next.width = w
-      next.height = h
-      if (mask.width && mask.height) next.getContext("2d")?.drawImage(mask, 0, 0, w, h)
-      mask = next
+      mask = remap(mask, w, h) // keep painted state across resizes
+      waiting = remap(waiting, w, h)
+      fresh = remap(fresh, w, h)
+      comp = make(w, h)
       canvas.width = w
       canvas.height = h
       dirty = true
@@ -211,45 +237,85 @@ export default function HomeHero() {
 
     const brushPx = () => Math.min(140, Math.max(64, window.innerWidth * 0.085)) * BRUSH * (touch ? 0.8 : 1)
 
-    const tick = () => {
-      raf = 0
-      if (!have) return
-      const B = brushPx()
-      const dx = tx - cx
-      const dy = ty - cy
-      const dist = Math.hypot(dx, dy)
-      const nx = dist < 0.4 ? tx : cx + dx * EASE
-      const ny = dist < 0.4 ? ty : cy + dy * EASE
-      if (ring && !touch) {
-        const hr = hero.getBoundingClientRect()
-        ring.style.width = ring.style.height = `${B * 2}px`
-        ring.style.transform = `translate3d(${nx - hr.left - B}px, ${ny - hr.top - B}px, 0)`
-      }
-      const mc = ink && drawing ? mask.getContext("2d") : null
-      if (mc) {
-        const rect = art.getBoundingClientRect()
-        const k = canvas.width / rect.width
-        const r = B * k
-        mc.fillStyle = "#000"
-        mc.shadowColor = "#000"
-        mc.shadowBlur = r * 0.1 // soft feathered edge
-        const seg = Math.hypot(nx - cx, ny - cy) * k
-        const steps = Math.max(1, Math.ceil(seg / (r * 0.12))) // dense stamps: no gaps, however fast
-        for (let n = 1; n <= steps; n++) {
-          const u = n / steps
-          phase += (seg / steps / r) * 0.9
-          blob(mc, (cx + (nx - cx) * u - rect.left) * k, (cy + (ny - cy) * u - rect.top) * k, r, phase)
-        }
-        mc.shadowBlur = 0
+    // Strokes hold at full colour for DELAY, then the whole mask fades by a small step every DECAY_EVERY ms.
+    const fadeStep = (now: number) => {
+      if (now - swapAt >= DELAY / 2) {
+        mask.getContext("2d")?.drawImage(waiting, 0, 0)
+        waiting.getContext("2d")?.clearRect(0, 0, waiting.width, waiting.height)
+        const t = waiting
+        waiting = fresh
+        fresh = t
+        swapAt = now
         dirty = true
-        present()
       }
-      cx = nx
-      cy = ny
-      if (dist >= 0.4) raf = requestAnimationFrame(tick)
+      if (now - decayAt >= DECAY_EVERY) {
+        const mc = mask.getContext("2d")
+        if (mc) {
+          mc.globalCompositeOperation = "destination-out"
+          mc.fillStyle = `rgba(0,0,0,${DECAY})`
+          mc.fillRect(0, 0, mask.width, mask.height)
+          mc.globalCompositeOperation = "source-over"
+        }
+        decayAt = now
+        dirty = true
+      }
+      if (now - lastPaint > DELAY + 9000) {
+        // everything has faded to an invisible trace: clear it and stop the loop
+        for (const c of [mask, waiting, fresh]) c.getContext("2d")?.clearRect(0, 0, c.width, c.height)
+        hasPaint = false
+        dirty = true
+      }
+    }
+
+    const frame = (now: number) => {
+      raf = 0
+      let moving = false
+      if (have) {
+        const B = brushPx()
+        const dx = tx - cx
+        const dy = ty - cy
+        const dist = Math.hypot(dx, dy)
+        moving = dist >= 0.4
+        const nx = moving ? cx + dx * EASE : tx
+        const ny = moving ? cy + dy * EASE : ty
+        if (ring && !touch) {
+          const hr = hero.getBoundingClientRect()
+          ring.style.width = ring.style.height = `${B * 2}px`
+          ring.style.transform = `translate3d(${nx - hr.left - B}px, ${ny - hr.top - B}px, 0)`
+        }
+        const mc = ink && drawing ? fresh.getContext("2d") : null
+        if (mc) {
+          const rect = art.getBoundingClientRect()
+          const k = canvas.width / rect.width
+          const r = B * k
+          mc.fillStyle = "#000"
+          mc.shadowColor = "#000"
+          mc.shadowBlur = r * 0.1 // soft feathered edge
+          const seg = Math.hypot(nx - cx, ny - cy) * k
+          const steps = Math.max(1, Math.ceil(seg / (r * 0.12))) // dense stamps: no gaps, however fast
+          for (let n = 1; n <= steps; n++) {
+            const u = n / steps
+            phase += (seg / steps / r) * 0.9
+            blob(mc, (cx + (nx - cx) * u - rect.left) * k, (cy + (ny - cy) * u - rect.top) * k, r, phase)
+          }
+          mc.shadowBlur = 0
+          if (!hasPaint) {
+            hasPaint = true
+            swapAt = now
+            decayAt = now
+          }
+          lastPaint = now
+          dirty = true
+        }
+        cx = nx
+        cy = ny
+      }
+      if (hasPaint) fadeStep(now)
+      present()
+      if (moving || hasPaint) raf = requestAnimationFrame(frame)
     }
     const wake = () => {
-      if (!raf) raf = requestAnimationFrame(tick)
+      if (!raf) raf = requestAnimationFrame(frame)
     }
 
     const onMove = (e: PointerEvent) => {
