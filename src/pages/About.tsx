@@ -11,60 +11,60 @@ import {
 } from "motion/react"
 import Navigation from "../components/Navigation"
 
-const asset = (name: string) => `/assets/${name}`
+const asset = (name: string) => `/assets/about/${name}`
 
 const gallery = [
   /* Row 1 */
-  { image: "28d69.png", alt: "Handcrafted sinking ship sculpture" },
-  { image: "89e10.png", alt: "Blue cosmic landscape linocut print" },
-  { image: "6364b.png", alt: "Sand relief sculpture with embedded marbles" },
-  { image: "fab97.png", alt: "Paper-cut shadow box forest scene" },
-  { image: "6b735.png", alt: "Stippled portrait of Michelangelo's David" },
+  { image: "artwork/sinking-ship-sculpture.png", alt: "Handcrafted sinking ship sculpture" },
+  { image: "artwork/blue-cosmic-linocut.png", alt: "Blue cosmic landscape linocut print" },
+  { image: "artwork/sand-relief-sculpture.png", alt: "Sand relief sculpture with embedded marbles" },
+  { image: "artwork/paper-cut-forest-shadow-box.png", alt: "Paper-cut shadow box forest scene" },
+  { image: "artwork/stippled-david-portrait.png", alt: "Stippled portrait of Michelangelo's David" },
   /* Row 2 */
-  { image: "8b677.png", alt: "Astronaut cockpit ink illustration" },
-  { image: "5cd96.png", alt: "Red cosmic landscape linocut print" },
-  { image: "14947.png", alt: "Graphite portrait with water highlights" },
-  { image: "92383.png", alt: "Backlit paper-cut shadow box" },
+  { image: "artwork/astronaut-cockpit-illustration.png", alt: "Astronaut cockpit ink illustration" },
+  { image: "artwork/red-cosmic-linocut.png", alt: "Red cosmic landscape linocut print" },
+  { image: "artwork/graphite-portrait-water-highlights.png", alt: "Graphite portrait with water highlights" },
+  { image: "artwork/backlit-paper-cut-shadow-box.png", alt: "Backlit paper-cut shadow box" },
   /* Row 3 */
-  { image: "f5ac4.png", alt: "Still life pencil drawing of lunch containers" },
-  { image: "34bcb.png", alt: "Justice tarot card ink illustration" },
-  { image: "d2bf5.png", alt: "Whimsical nocturnal landscape painting" },
-  { image: "4e2f7.png", alt: "Topographic line profile portrait" },
-  { image: "a45ba.png", alt: "MCGSMUN23 Secretariat poster design" },
+  { image: "artwork/lunch-containers-still-life.png", alt: "Still life pencil drawing of lunch containers" },
+  { image: "artwork/justice-tarot-illustration.png", alt: "Justice tarot card ink illustration" },
+  { image: "artwork/nocturnal-landscape-painting.png", alt: "Whimsical nocturnal landscape painting" },
+  { image: "artwork/topographic-line-portrait.png", alt: "Topographic line profile portrait" },
+  { image: "artwork/mcgsmun-secretariat-poster.png", alt: "MCGSMUN23 Secretariat poster design" },
   /* Row 4 */
-  { image: "d7d33.png", alt: "Camera with golden light ribbons painting" },
-  { image: "badde.png", alt: "Graphite pencil portrait of a woman" },
-  { image: "cb2e0.png", alt: "Colored portrait with golden liquid" },
-  { image: "06e1c.png", alt: "Blue whale fabric installation sculpture" },
+  { image: "artwork/camera-light-ribbons-painting.png", alt: "Camera with golden light ribbons painting" },
+  { image: "artwork/graphite-portrait-woman.png", alt: "Graphite pencil portrait of a woman" },
+  { image: "artwork/portrait-with-golden-liquid.png", alt: "Colored portrait with golden liquid" },
+  { image: "artwork/blue-whale-fabric-installation.png", alt: "Blue whale fabric installation sculpture" },
   /* Row 5 */
-  { image: "a36ad.png", alt: "Pandemic portrait with masks pencil drawing" },
-  { image: "0a14e.png", alt: "Fruit still life graphite drawing" },
+  { image: "artwork/pandemic-mask-portrait.png", alt: "Pandemic portrait with masks pencil drawing" },
+  { image: "artwork/fruit-still-life.png", alt: "Fruit still life graphite drawing" },
 ] as const
 
 const interests = [
   {
     text: "Sketching ideas that don’t fit into wireframes.",
-    image: "interest-art.png",
+    image: "interests/art.png",
   },
   {
     text: "At the gym or outdoors, resetting my brain.",
-    image: "interest-gym.jpg",
+    image: "interests/gym.jpg",
   },
   {
     text: "Watching films that linger longer than they should.",
-    image: "interest-film.jpg",
+    image: "interests/film.jpg",
   },
   {
     text: "Cooking up a new recipe i found on instagram.",
-    image: "interest-cooking.jpg",
+    image: "interests/cooking.jpg",
   },
   {
     text: "Listening to music that shapes my mood and ideas.",
-    image: "interest-music.jpg",
+    image: "interests/music.jpg",
   },
   {
     text: "Playing football for the chaos, energy, and teamwork.",
-    image: "interest-football.jpg",
+    image: "interests/football.jpg",
   },
 ] as const
 
@@ -79,7 +79,7 @@ function PinnedPhoto() {
       transition={{ duration: 2.4, ease: "easeInOut" }}
       style={{ transformOrigin: "50% 0%" }}
     >
-      <img className="photo-pin" src={asset("d3dee.png")} alt="" />
+      <img className="photo-pin" src={asset("profile/photo-pin.png")} alt="" />
       <motion.div
         className="pinned-photo"
         onHoverStart={() => setFlipped(true)}
@@ -88,10 +88,10 @@ function PinnedPhoto() {
         transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
       >
         <div className="photo-face photo-front">
-          <img src={asset("01c5f.png")} alt="Kritvee outdoors" />
+          <img src={asset("profile/portrait-outdoors.png")} alt="Kritvee outdoors" />
         </div>
         <div className="photo-face photo-back">
-          <img src={asset("about-photo-back.jpg")} alt="Kritvee" />
+          <img src={asset("profile/portrait-back.jpg")} alt="Kritvee" />
         </div>
       </motion.div>
     </motion.div>
@@ -104,7 +104,7 @@ function EducationCard() {
       <h2>Education</h2>
       <div className="education-timeline">
         <div className="education-entry">
-          <img src={asset("e0f29.png")} alt="" />
+          <img src={asset("profile/education-mit.png")} alt="" />
           <div>
             <h3>MIT Insititute of design</h3>
             <p>Bachelor of Design (B.Des)</p>
@@ -113,7 +113,7 @@ function EducationCard() {
         </div>
         <div className="education-connector" aria-hidden="true" />
         <div className="education-entry">
-          <img src={asset("d030b.png")} alt="" />
+          <img src={asset("profile/education-mayo.png")} alt="" />
           <div>
             <h3>Mayo College Girls’ School</h3>
             <p>Higher Secondary Education</p>
@@ -127,12 +127,12 @@ function EducationCard() {
 }
 
 const tools = [
-  { image: "39248.png", className: "tool-figma", alt: "Figma" },
+  { image: "tools/figma.png", className: "tool-figma", alt: "Figma" },
   { image: "", className: "tool-framer", alt: "Framer" },
-  { image: "e455c.png", className: "tool-miro", alt: "Miro" },
-  { image: "a9454.png", className: "tool-photoshop", alt: "Photoshop" },
-  { image: "a9454.png", className: "tool-illustrator", alt: "Illustrator" },
-  { image: "12f0d.png", className: "tool-procreate", alt: "Procreate" },
+  { image: "tools/miro.png", className: "tool-miro", alt: "Miro" },
+  { image: "tools/adobe-creative-suite.png", className: "tool-photoshop", alt: "Photoshop" },
+  { image: "tools/adobe-creative-suite.png", className: "tool-illustrator", alt: "Illustrator" },
+  { image: "tools/procreate.png", className: "tool-procreate", alt: "Procreate" },
 ] as const
 
 function ToolsCard() {

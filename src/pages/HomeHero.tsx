@@ -2,8 +2,8 @@ import { useEffect, useRef } from "react"
 import { motion, useReducedMotion } from "motion/react"
 import "./home-hero.css"
 
-// Save your printmaking image at public/assets/print-hero.png (or change this path).
-const ART = "/assets/print-hero.png"
+// Save your printmaking image at public/assets/homepage/hero/print-hero.png.
+const ART = "/assets/homepage/hero/print-hero.png"
 const MOBILE = "(max-width: 700px)"
 const easeOut = [0.22, 1, 0.36, 1] as const
 const LINE_1 = "I notice little things."

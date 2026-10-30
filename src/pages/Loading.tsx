@@ -5,7 +5,7 @@ import "./capygo.css"
 import "./loading.css"
 
 const PROTO = "https://www.figma.com/make/b5fXW7L9vBbsoqufpyABNY/Loading-screens?fullscreen=1&t=KWtK4w0J0FLSdvzR-1&code-node-id=0-9"
-const img = (n: string) => `/assets/loading/${n}.png`
+const img = (n: string) => `/assets/projects/psychology-of-loading/${n}.png`
 const ease = [0.22, 1, 0.36, 1] as const
 const reveal = {
   initial: { opacity: 0, y: 20 },

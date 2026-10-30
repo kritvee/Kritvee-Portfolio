@@ -9,8 +9,10 @@ import {
 } from "motion/react"
 import { useEffect, useRef, useState } from "react"
 import Navigation from "../components/Navigation"
-import { projects, secondaryWork } from "../data/portfolio"
+import { projects } from "../data/portfolio"
+import { visualWork } from "../data/visualWork"
 import HomeHero from "./HomeHero"
+import "./home-visual.css"
 
 const asset = (name: string) => `/assets/${name}`
 type Project = typeof projects[number]
@@ -45,7 +47,7 @@ function ArtworkLayer({
 function CapyArtwork() {
   return (
     <div className="artwork capy-artwork card-artwork-capy">
-      <ArtworkLayer className="portfolio-card-image" name="home-cards/capygo.png" />
+      <ArtworkLayer className="portfolio-card-image" name="homepage/project-cards/capygo.png" />
     </div>
   )
 }
@@ -53,7 +55,7 @@ function CapyArtwork() {
 function RoopArtwork() {
   return (
     <div className="artwork roop-artwork card-artwork-roop">
-      <ArtworkLayer className="portfolio-card-image" name="home-cards/roop.png" />
+      <ArtworkLayer className="portfolio-card-image" name="homepage/project-cards/roop.png" />
     </div>
   )
 }
@@ -61,10 +63,9 @@ function RoopArtwork() {
 function SplitwiseArtwork() {
   return (
     <div className="artwork splitwise-artwork">
-      <ArtworkLayer className="splitwise-texture" name="aa23c.png" />
-      <ArtworkLayer className="split-screen split-one" name="c2b38.png" />
-      <ArtworkLayer className="split-screen split-two" name="faba2.png" />
-      <ArtworkLayer className="split-screen split-three" name="115aa.png" />
+      <ArtworkLayer className="split-screen split-one" name="projects/splitwise/screen-1.png" />
+      <ArtworkLayer className="split-screen split-two" name="projects/splitwise/screen-2.png" />
+      <ArtworkLayer className="split-screen split-three" name="projects/splitwise/screen-3.png" />
     </div>
   )
 }
@@ -72,9 +73,9 @@ function SplitwiseArtwork() {
 function LoadingArtwork() {
   return (
     <div className="artwork loading-artwork">
-      <ArtworkLayer className="loading-screen loading-screen-basic" name="loading/basic.png" />
-      <ArtworkLayer className="loading-screen loading-screen-fancy" name="loading/fancy.png" />
-      <ArtworkLayer className="loading-screen loading-screen-skeleton" name="loading/skeleton.png" />
+      <ArtworkLayer className="loading-screen loading-screen-basic" name="projects/psychology-of-loading/basic.png" />
+      <ArtworkLayer className="loading-screen loading-screen-fancy" name="projects/psychology-of-loading/fancy.png" />
+      <ArtworkLayer className="loading-screen loading-screen-skeleton" name="projects/psychology-of-loading/skeleton.png" />
     </div>
   )
 }
@@ -261,15 +262,6 @@ function PersonalityMoment() {
   )
 }
 
-const visualWork = [
-  { image: secondaryWork[0].image, alt: "Tarot Cards Reimagined: colourful illustrated tarot cards", title: "Tarot Cards Reimagined", category: "ILLUSTRATION" },
-  { image: secondaryWork[1].image, alt: "Retail Bags Catalogue: editorial and product design moodboard", title: "Retail Bags Catalogue", category: "EDITORIAL DESIGN" },
-  { image: secondaryWork[2].image, alt: "MCGSMUN logo design: illustrated dragon logo", title: "MCGSMUN Logo Design", category: "LOGO DESIGN" },
-  { image: "skin-and-me.png", alt: "Skin & Me logo on a skincare tube, serum bottles, jar, box and shopping bag", title: "Skin & Me", category: "LOGO DESIGN", position: "20% 50%" },
-  { image: "world-aviation-training.png", alt: "World Aviation Training logo on the side of an aircraft fuselage", title: "World Aviation Training", category: "LOGO DESIGN", position: "50% 50%" },
-  { image: "mcgsmun-tshirt.png", alt: "MCGSMUN23 Secretariat T-shirt graphic: a statue of Lady Justice with lightning on black", title: "MCGSMUN T-Shirt Design", category: "APPAREL GRAPHICS", position: "50% 40%" },
-] as const
-
 function VisualWorkspace() {
   return (
     <section className="workspace-visual" id="visual">
@@ -286,32 +278,40 @@ function VisualWorkspace() {
       <div className="workspace-visual-canvas">
         {visualWork.map((item, index) => (
           <motion.figure
-            key={item.image}
+            key={item.slug}
             className={`workspace-visual-artboard workspace-visual-artboard-${index + 1}`}
             initial={{ opacity: 0, y: 36 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.15 }}
             transition={{ delay: Math.min(index * 0.05, 0.25), duration: 0.55 }}
-            data-cursor="view"
           >
-            <img
-              src={asset(item.image)}
-              alt={item.alt}
-              style={"position" in item ? { objectPosition: item.position } : undefined}
-              loading="lazy"
-              decoding="async"
-            />
-            <figcaption style={{ flexWrap: "wrap" }}>
-              <span>
-                {String(index + 1).padStart(2, "0")} · {item.title.toUpperCase()}
-              </span>
-              <span>{item.category}</span>
-            </figcaption>
-            <SelectionHandles />
+            <a
+              href={`/visual-design#${item.slug}`}
+              data-cursor="open"
+              aria-label={`${item.title}: view in Visual Design`}
+            >
+              <img
+                src={encodeURI(item.cover)}
+                alt={item.alt}
+                style={{ objectPosition: item.position }}
+                loading="lazy"
+                decoding="async"
+              />
+              <figcaption style={{ flexWrap: "wrap" }}>
+                <span>
+                  {String(index + 1).padStart(2, "0")} · {item.title.toUpperCase()}
+                </span>
+                <span>{item.label}</span>
+              </figcaption>
+              <SelectionHandles />
+            </a>
           </motion.figure>
         ))}
         <span className="workspace-canvas-note">EXPLORED / ONGOING</span>
       </div>
+      <a className="workspace-viewall" href="/visual-design">
+        View all visual work →
+      </a>
     </section>
   )
 }
@@ -321,7 +321,7 @@ function AboutWorkspace() {
     <motion.section className="workspace-about" {...reveal}>
       <div className="workspace-about-image" data-cursor="view">
         <img
-          src={asset("01c5f.png")}
+          src={asset("about/profile/portrait-outdoors.png")}
           alt="Kritvee outdoors"
           loading="lazy"
           decoding="async"

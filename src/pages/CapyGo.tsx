@@ -3,7 +3,7 @@ import { motion, MotionConfig } from "motion/react"
 import Navigation from "../components/Navigation"
 import "./capygo.css"
 
-const img = (n: string) => `/assets/capygo/${n}.png`
+const img = (n: string) => `/assets/projects/capygo/${n}.png`
 const ease = [0.22, 1, 0.36, 1] as const
 const reveal = {
   initial: { opacity: 0, y: 20 },
@@ -70,7 +70,7 @@ function Phones({ items, wide = false }: { items: readonly Shot[]; wide?: boolea
           viewport={{ once: true, amount: 0.15 }}
           transition={{ duration: 0.6, ease, delay: Math.min(i, 4) * 0.08 }}
         >
-          <img src={`/assets/capygo/${n}.png`} alt={alt} width={540} height={1100} loading="lazy" decoding="async" />
+          <img src={img(n)} alt={alt} width={540} height={1100} loading="lazy" decoding="async" />
           <figcaption>{cap}</figcaption>
         </motion.figure>
       ))}
@@ -141,7 +141,7 @@ export default function CapyGo() {
               <p className="cs-lead">Helping users pause, process, and regain control during OCD triggers. A companion app and smartwatch concept that steps in when thinking is hardest.</p>
             </div>
             <div className="cp-hero-art">
-              <img src="/assets/capygo/n-hero.png" alt="Capygo on a phone asking 'Feeling triggered?' beside a smartwatch showing a 30 second timer and heart rate" width={1100} height={956} />
+              <img src={img("n-hero")} alt="Capygo on a phone asking 'Feeling triggered?' beside a smartwatch showing a 30 second timer and heart rate" width={1100} height={956} />
             </div>
             <dl className="cs-facts">
               <div><dt>Role</dt><dd>UX Researcher &amp; Product Designer</dd></div>

@@ -7,6 +7,7 @@ import CaseStudyPlaceholder from "./pages/CaseStudyPlaceholder"
 import Home from "./pages/Home"
 import Loading from "./pages/Loading"
 import Roop from "./pages/Roop"
+import VisualDesign from "./pages/VisualDesign"
 
 class AppErrorBoundary extends Component<{ children: ReactNode }, {
   hasError: boolean
@@ -36,13 +37,15 @@ class AppErrorBoundary extends Component<{ children: ReactNode }, {
 }
 
 export default function App() {
-  const path = window.location.pathname
+  const path = window.location.pathname.replace(/\/+$/, "") || "/"
   const project = projects.find((item) => `/${item.slug}` === path)
 
   return (
     <AppErrorBoundary>
       {path === "/about" ? (
         <About />
+      ) : path === "/visual-design" ? (
+        <VisualDesign />
       ) : path === "/capy" ? (
         <CapyGo />
       ) : path === "/roop" ? (

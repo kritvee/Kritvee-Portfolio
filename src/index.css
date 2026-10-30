@@ -195,8 +195,7 @@ img {
   min-height: clamp(540px, 52.3vw, 791px);
   align-items: center;
   background-color: var(--paper);
-  background-image: linear-gradient(rgba(232, 228, 220, 0.17), rgba(232, 228, 220, 0.17)),
-    url("/assets/c90a7.png");
+  background-image: linear-gradient(rgba(232, 228, 220, 0.17), rgba(232, 228, 220, 0.17));
   background-position: center 30%;
   background-size: cover;
   color: #000;
@@ -503,15 +502,6 @@ img {
   background: #687664;
 }
 
-.splitwise-texture {
-  inset: -25% -8%;
-  width: 116%;
-  height: 150%;
-  object-fit: cover;
-  opacity: 0.2;
-  transform: rotate(-90deg);
-}
-
 .split-screen {
   object-fit: fill;
 }
@@ -611,7 +601,7 @@ img {
   overflow: hidden;
   aspect-ratio: 352 / 549;
   border-radius: clamp(10px, 1.2vw, 18px);
-  mask: url("/assets/2188c.svg") center / 100% 100% no-repeat;
+  mask: url("/assets/icons/2188c.svg") center / 100% 100% no-repeat;
 }
 
 .secondary-image img {
@@ -625,7 +615,7 @@ img {
 }
 
 .secondary-image:nth-child(1) {
-  mask-image: url("/assets/04812.svg");
+  mask-image: url("/assets/icons/04812.svg");
 }
 
 .secondary-image:nth-child(2) img {
@@ -710,8 +700,7 @@ img {
   min-height: clamp(410px, 54.77vw, 828px);
   overflow: hidden;
   background-color: var(--paper);
-  background-image: linear-gradient(rgba(232, 228, 220, 0.16), rgba(232, 228, 220, 0.16)),
-    url("/assets/c90a7.png");
+  background-image: linear-gradient(rgba(232, 228, 220, 0.16), rgba(232, 228, 220, 0.16));
   background-position: center 30%;
   background-size: cover;
   color: #000;

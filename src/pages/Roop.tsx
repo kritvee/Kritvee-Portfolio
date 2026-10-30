@@ -4,7 +4,7 @@ import Navigation from "../components/Navigation"
 import "./capygo.css"
 import "./roop.css"
 
-const img = (n: string) => `/assets/roop/${n}.png`
+const img = (n: string) => `/assets/projects/roop/${n}.png`
 const ease = [0.22, 1, 0.36, 1] as const
 const reveal = {
   initial: { opacity: 0, y: 20 },
@@ -95,7 +95,7 @@ function Phones({ items }: { items: readonly (readonly [string, string, string])
           transition={{ duration: 0.6, ease, delay: i * 0.08 }}
         >
           <img
-            src={`/assets/roop/${n}.png`}
+            src={img(n)}
             alt={alt}
             loading="lazy"
             decoding="async"
@@ -137,7 +137,7 @@ export default function Roop() {
               <p className="cs-lead">A skincare guidance app where modern actives meet their traditional origin. It helps Indian Gen Z scan products, understand ingredients and track how their skin responds.</p>
             </div>
             <figure className="rp-cover">
-              <img src="/assets/roop/cover.jpg" alt="Roop Skin cover: a close portrait of a woman holding a glass dropper bottle, with the Roop Skin wordmark" width={1920} height={1080} />
+              <img src="/assets/projects/roop/cover.jpg" alt="Roop Skin cover: a close portrait of a woman holding a glass dropper bottle, with the Roop Skin wordmark" width={1920} height={1080} />
             </figure>
             <dl className="cs-facts">
               <div><dt>Role</dt><dd>UX Researcher &amp; Product Designer</dd></div>

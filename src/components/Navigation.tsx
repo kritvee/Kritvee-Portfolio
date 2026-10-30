@@ -6,14 +6,15 @@ export default function Navigation() {
       </a>
       <nav aria-label="Primary navigation">
         <a href="/#work">Work</a>
+        <a href="/visual-design">Visual Design</a>
+        <a href="/about">About</a>
         <a
-          href="/assets/Kritvee-Modi-Resume.pdf"
+          href="/assets/about/resume.pdf"
           target="_blank"
           rel="noopener noreferrer"
         >
           Resume
         </a>
-        <a href="/about">About</a>
         <a className="contact-link" href="/#contact">
           Contact
         </a>

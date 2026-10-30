@@ -1,0 +1,13 @@
+/* Homepage visual-work gallery: the original asymmetrical composition, with the overlap fixed.
+   Uses the existing grid (12 columns, fixed-height rows) from index.css and only sets placements. */
+@media(min-width:701px){
+.workspace-home .workspace-visual-artboard-1{grid-column:1/span 4;grid-row:1/span 7}
+.workspace-home .workspace-visual-artboard-2{grid-column:5/span 4;grid-row:2/span 6}
+.workspace-home .workspace-visual-artboard-3{grid-column:9/span 4;grid-row:1/span 7}
+.workspace-home .workspace-visual-artboard-4{grid-column:1/span 6;grid-row:9/span 8}
+.workspace-home .workspace-visual-artboard-5{grid-column:7/span 3;grid-row:9/span 6}
+.workspace-home .workspace-visual-artboard-6{grid-column:10/span 3;grid-row:10/span 6}}
+.workspace-visual-artboard>a{position:absolute;inset:0;display:block;width:100%;height:100%;color:inherit}
+.workspace-visual-artboard>a:focus-visible{outline:1px solid var(--workspace-accent);outline-offset:3px}
+.workspace-viewall{display:inline-block;margin-top:clamp(36px,4vw,56px);font-family:"Inter:Medium",sans-serif;font-size:12px;letter-spacing:.08em;color:var(--workspace-muted);border-bottom:1px solid transparent;padding-bottom:3px;transition:color .25s,border-color .25s}
+.workspace-viewall:hover,.workspace-viewall:focus-visible{color:var(--workspace-cream);border-bottom-color:var(--workspace-accent)}

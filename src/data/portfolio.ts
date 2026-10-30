@@ -32,7 +32,7 @@ export const projects = [
 ] as const
 
 export const secondaryWork = [
-  { image: "3dd5d.png", alt: "Colorful tarot card designs" },
-  { image: "989c6.png", alt: "Editorial and product design moodboard" },
-  { image: "2850c.png", alt: "Illustrated dragon logo design" },
+  { image: "visual-design/tarot-cards/cover.png", alt: "Colorful tarot card designs" },
+  { image: "visual-design/retail-bags/cover.png", alt: "Editorial and product design moodboard" },
+  { image: "visual-design/mcgsmun-logo/cover.png", alt: "Illustrated dragon logo design" },
 ] as const
